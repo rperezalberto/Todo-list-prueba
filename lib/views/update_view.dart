@@ -245,7 +245,12 @@ class StartTime extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label),
+        Text(
+          label,
+          style: TextStyle(
+            color: themeColor.primary,
+          ),
+        ),
         const SizedBox(height: 8),
         GestureDetector(
           onTap: () {
@@ -264,11 +269,11 @@ class StartTime extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Icon(Icons.access_time, color: themeColor.onPrimary),
+                Icon(Icons.access_time, color: themeColor.onSecondary),
                 const SizedBox(width: 8),
                 Text(
                   formatTime(time),
-                  style: TextStyle(color: themeColor.onPrimary),
+                  style: TextStyle(color: themeColor.onSecondary),
                 ),
               ],
             ),

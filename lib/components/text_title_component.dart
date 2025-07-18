@@ -6,10 +6,12 @@ class TextTitleComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeColor = Theme.of(context).colorScheme;
     return Text(
       title,
       style: TextStyle(
         fontSize: 22,
+        color: themeColor.primary,
         fontWeight: FontWeight.w600,
       ),
     );
