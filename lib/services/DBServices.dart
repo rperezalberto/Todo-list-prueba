@@ -60,5 +60,16 @@ class DBService {
     );
   }
 
+  Future<void> updateTaskSerices(TaskModel task) async {
+    final db = await database;
+
+    await db.update(
+      'tasks',
+      task.toMap(), // convierte el modelo a Map<String, dynamic>
+      where: 'id = ?', // condición de actualización
+      whereArgs: [task.id], // id de la tarea a actualizar
+    );
+  }
+
   // También puedes agregar: getTasks(), updateTask(), deleteTask()...
 }

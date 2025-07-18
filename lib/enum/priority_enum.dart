@@ -25,3 +25,16 @@ extension PriorityExtension on PriorityEnum {
     }
   }
 }
+
+PriorityEnum priorityFromString(String value) {
+  switch (value.toLowerCase()) {
+    case 'baja':
+      return PriorityEnum.low;
+    case 'media':
+      return PriorityEnum.medium;
+    case 'alta':
+      return PriorityEnum.high;
+    default:
+      return PriorityEnum.low; // valor por defecto
+  }
+}

@@ -1,48 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list/models/task_model.dart';
 import 'package:todo_list/enum/priority_enum.dart';
+import 'package:todo_list/services/DBServices.dart';
 
 class UpdateProvider with ChangeNotifier {
+  DBService dbService = DBService();
+  DateTime selectedDate = DateTime.now();
   late TaskModel _task;
+  late PriorityEnum selectedPriority = PriorityEnum.medium;
   final titleController = TextEditingController();
   final descController = TextEditingController();
+  DateTime selectedTimeStart = DateTime.now();
+  DateTime selectedTimeEnd = DateTime.now();
   TaskModel get task => _task;
 
   void setTask(TaskModel task) {
     _task = task;
+    // Convertimos el string a PriorityEnum
+
     titleController.text = task.title;
     descController.text = task.descrip;
-  }
+    selectedDate = task.date;
+    selectedTimeStart = task.startTime;
+    selectedTimeEnd = task.endTime;
 
-  void updateDate(DateTime date) {
-    _task.date = date;
+    selectedPriority = priorityFromString(task.priority);
     notifyListeners();
   }
 
-  void updateTimeStart(DateTime time) {
-    _task.startTime = time;
+  Future<void> update(int id) async {
+    final newTaks = TaskModel(
+      id: id,
+      title: titleController.text,
+      descrip: descController.text,
+      date: selectedDate,
+      startTime: selectedTimeStart,
+      endTime: selectedTimeEnd,
+      priority: selectedPriority.label,
+    );
+    dbService.updateTaskSerices(newTaks);
     notifyListeners();
   }
 
-  void updateTimeEnd(DateTime time) {
-    _task.endTime = time;
+  void currentSelectedDate(DateTime date) {
+    selectedDate = date;
     notifyListeners();
   }
 
   void setPriority(PriorityEnum priority) {
-    selectedPriority = label(priority);
-    notifyListeners();
-  }
-
-  void updatePriority(PriorityEnum priority) {
-    _task.priority = priority;
-    notifyListeners();
-  }
-
-  void saveChanges() {
-    _task.title = titleController.text;
-    _task.descrip = descController.text;
-    // Aquí normalmente actualizarías en tu base de datos
+    selectedPriority = priority;
     notifyListeners();
   }
 

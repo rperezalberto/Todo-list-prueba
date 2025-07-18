@@ -128,4 +128,11 @@ class AddProvider with ChangeNotifier {
       log("Error al grear el taks");
     }
   }
+
+  @override
+  void dispose() {
+    title.dispose();
+    descrip.dispose();
+    super.dispose();
+  }
 }

@@ -7,6 +7,7 @@ import 'package:todo_list/components/text_title_component.dart';
 import 'package:todo_list/enum/priority_enum.dart';
 import 'package:todo_list/models/task_model.dart';
 import 'package:todo_list/providers/add_provider.dart';
+import 'package:todo_list/providers/update_provider.dart';
 import 'package:todo_list/utils/utils.dart';
 
 class UpdateView extends StatelessWidget {
@@ -15,7 +16,9 @@ class UpdateView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final addProvider = Provider.of<AddProvider>(context);
+    // final addProvider = Provider.of<AddProvider>(context);
+
+    final updateProvider = Provider.of<UpdateProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -30,17 +33,16 @@ class UpdateView extends StatelessWidget {
               Expanded(
                 child: Column(
                   children: [
-                    Calendary(),
-                    FormText(),
+                    Calendary(taks: taks),
+                    FormText(taks: taks),
                     Row(
                       children: [
                         Expanded(
                           child: StartTime(
                             label: "Hora de inicio",
-                            time: addProvider.selectedTimeStart,
+                            time: taks.startTime,
                             onTimeChanged: (newTime) {
-                              addProvider.selectedTimeStart = newTime;
-                              // addProvider.notifyListeners(); // << IMPORTANTE
+                              updateProvider.selectedTimeStart = newTime;
                             },
                           ),
                         ),
@@ -48,22 +50,22 @@ class UpdateView extends StatelessWidget {
                         Expanded(
                           child: StartTime(
                             label: "Hora de final",
-                            time: addProvider.selectedTimeEnd,
+                            time: taks.endTime,
                             onTimeChanged: (newTime) {
-                              addProvider.selectedTimeEnd = newTime;
+                              updateProvider.selectedTimeEnd = newTime;
                             },
                           ),
                         ),
                       ],
                     ),
-                    Priority(),
+                    Priority(taks: taks),
                   ],
                 ),
               ),
               CustomButtonComponent(
-                title: "Crear tarea",
+                title: "Actulizar",
                 onTap: () {
-                  addProvider.addTask();
+                  updateProvider.update(taks.id!);
                   Navigator.pop(context);
                 },
               ),
@@ -82,8 +84,10 @@ class Calendary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final addProvider = Provider.of<AddProvider>(context);
+
+    final updateProvider = Provider.of<UpdateProvider>(context);
     final themeColor = Theme.of(context).colorScheme;
-    final selectedDate = addProvider.selectedDate;
+    final selectedDate = taks.date;
     return Column(
       children: [
         Row(
@@ -93,7 +97,7 @@ class Calendary extends StatelessWidget {
               icon: Icon(Icons.keyboard_arrow_left,
                   size: 28, color: themeColor.primary),
               onPressed: () {
-                addProvider.previousMonth();
+                // addProvider.previousMonth();
               },
             ),
             const SizedBox(width: 8),
@@ -133,7 +137,7 @@ class Calendary extends StatelessWidget {
 
               return GestureDetector(
                 onTap: () {
-                  addProvider.currentSelectedDate(day);
+                  updateProvider.currentSelectedDate(day);
                 },
                 child: Container(
                   // margin: const EdgeInsets.symmetric(horizontal: 6),
@@ -185,11 +189,13 @@ class Calendary extends StatelessWidget {
 }
 
 class FormText extends StatelessWidget {
-  const FormText({super.key});
+  final TaskModel taks;
+  const FormText({super.key, required this.taks});
 
   @override
   Widget build(BuildContext context) {
-    final addProvider = Provider.of<AddProvider>(context);
+    // final addProvider = Provider.of<AddProvider>(context);
+    final updateProvider = Provider.of<UpdateProvider>(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 30),
       child: Column(
@@ -202,14 +208,14 @@ class FormText extends StatelessWidget {
               child: Column(
             children: [
               TextField(
-                controller: addProvider.title,
-                decoration: InputDecoration(hintText: "Titulo"),
+                controller: updateProvider.titleController,
+                decoration: InputDecoration(hintText: taks.title),
               ),
               const SizedBox(height: 10),
               TextField(
-                controller: addProvider.descrip,
+                controller: updateProvider.descController,
                 maxLines: 4,
-                decoration: InputDecoration(hintText: "Descripción"),
+                decoration: InputDecoration(hintText: taks.descrip),
               ),
             ],
           )),
@@ -235,7 +241,7 @@ class StartTime extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeColor = Theme.of(context).colorScheme;
 
-    final addProvider = Provider.of<AddProvider>(context);
+    // final addProvider = Provider.of<AddProvider>(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -274,12 +280,15 @@ class StartTime extends StatelessWidget {
 }
 
 class Priority extends StatelessWidget {
-  const Priority({super.key});
+  final TaskModel taks;
+  const Priority({super.key, required this.taks});
 
   @override
   Widget build(BuildContext context) {
-    final addProvider = Provider.of<AddProvider>(context);
-    final selected = addProvider.selectedPriority;
+    // final addProvider = Provider.of<AddProvider>(context);
+
+    final updateProvider = Provider.of<UpdateProvider>(context);
+    final selected = priorityFromString(taks.priority);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 30),
       child: Column(
@@ -296,7 +305,7 @@ class Priority extends StatelessWidget {
                     title: priority.label,
                     colorBorder: priority.borderColor,
                     isSelected: priority == selected,
-                    onTap: () => addProvider.setPriority(priority),
+                    onTap: () => updateProvider.setPriority(priority),
                   ),
                 ),
               );
