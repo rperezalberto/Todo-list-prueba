@@ -5,11 +5,13 @@ import 'package:todo_list/components/button_piority_component.dart';
 import 'package:todo_list/components/custom_button_component.dart';
 import 'package:todo_list/components/text_title_component.dart';
 import 'package:todo_list/enum/priority_enum.dart';
+import 'package:todo_list/models/task_model.dart';
 import 'package:todo_list/providers/add_provider.dart';
 import 'package:todo_list/utils/utils.dart';
 
-class AddListView extends StatelessWidget {
-  const AddListView({super.key});
+class UpdateView extends StatelessWidget {
+  final TaskModel taks;
+  const UpdateView({super.key, required this.taks});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +19,7 @@ class AddListView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Agregar"),
+        title: const Text("Actulizar tarea"),
       ),
       body: SafeArea(
         child: Padding(
@@ -75,7 +77,8 @@ class AddListView extends StatelessWidget {
 
 // Calendario
 class Calendary extends StatelessWidget {
-  const Calendary({super.key});
+  final TaskModel taks;
+  const Calendary({super.key, required this.taks});
   @override
   Widget build(BuildContext context) {
     final addProvider = Provider.of<AddProvider>(context);

@@ -8,7 +8,7 @@ class AppThemes {
       backgroundColor: AppColor.color0xFF181818,
       titleTextStyle: TextStyle(
         color: AppColor.color0xFFFFFFFF,
-        fontSize: 18,
+        fontSize: 30,
         fontWeight: FontWeight.bold,
       ),
     ),
@@ -44,7 +44,7 @@ class AppThemes {
         onSecondary: AppColor.color0xFFFACBBA,
         error: AppColor.color0xFFFFFFFF,
         onError: AppColor.color0xFFFFFFFF,
-        surface: AppColor.color0xFFFFFFFF,
+        surface: AppColor.color0xFF181818,
         onSurface: AppColor.color0xFFFFFFFF),
   );
   static ThemeData lightTheme = ThemeData(

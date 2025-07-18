@@ -1,18 +1,27 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:intl/intl.dart';
+import 'package:todo_list/enum/priority_enum.dart';
+import 'package:todo_list/models/task_model.dart';
+import 'package:todo_list/providers/taks_provider.dart';
+import 'package:todo_list/services/DBServices.dart';
 
 class AddProvider with ChangeNotifier {
   DateTime selectedDate = DateTime.now();
   late List<DateTime> days;
+  final TextEditingController title = TextEditingController();
+  final TextEditingController descrip = TextEditingController();
   DateTime selectedTimeStart = DateTime.now();
   DateTime selectedTimeEnd = DateTime.now();
+  PriorityEnum selectedPriority = PriorityEnum.medium;
+  TaksProvider taksProvider = TaksProvider();
+
+  final db = DBService();
+
   AddProvider() {
     _generateDaysForMonth(selectedDate);
-  }
-
-  String get currentMonth {
-    return DateFormat('MMMM yyyy', 'es_ES').format(selectedDate);
   }
 
   void currentSelectedDate(DateTime date) {
@@ -42,13 +51,6 @@ class AddProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  String formatTime(DateTime time) {
-    final hour = time.hour.toString().padLeft(2, '0');
-    final minute = time.minute.toString().padLeft(2, '0');
-    // final period = time.hour >= 12 ? 'PM' : 'AM';
-    return '$hour : $minute';
-  }
-
   void showTimePicker(BuildContext context, DateTime initialTime,
       void Function(DateTime) onTimeSelected) {
     final themeColor = Theme.of(context).colorScheme;
@@ -60,11 +62,11 @@ class AddProvider with ChangeNotifier {
 
         return Container(
           height: 250,
-          color: themeColor.onSecondary,
+          color: themeColor.surface,
           child: Column(
             children: [
               Container(
-                color: themeColor.onSecondary,
+                color: themeColor.surface,
                 height: 180,
                 child: TimePickerSpinner(
                   is24HourMode: true,
@@ -101,5 +103,29 @@ class AddProvider with ChangeNotifier {
         );
       },
     );
+  }
+
+  void setPriority(PriorityEnum priority) {
+    selectedPriority = priority;
+    // selectedPriority = label(priority);
+    notifyListeners();
+  }
+
+  Future<void> addTask() async {
+    try {
+      final task = TaskModel(
+          title: title.text,
+          descrip: descrip.text,
+          date: selectedDate,
+          startTime: selectedTimeStart,
+          endTime: selectedTimeEnd,
+          priority: selectedPriority.label);
+
+      await db.insertTask(task);
+      await taksProvider.loadTasks();
+      notifyListeners();
+    } catch (e) {
+      log("Error al grear el taks");
+    }
   }
 }
