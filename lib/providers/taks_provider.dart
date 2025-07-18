@@ -1,10 +1,11 @@
 import 'dart:developer';
 
-import 'package:file_picker/file_picker.dart';
+// import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
+// import 'package:permission_handler/permission_handler.dart';
+// import 'package:share_plus/share_plus.dart';
 import 'package:todo_list/models/task_model.dart';
 import 'package:todo_list/services/DBServices.dart';
 import 'package:excel/excel.dart';
@@ -78,7 +79,7 @@ class TaksProvider with ChangeNotifier {
     updateSearchQuery('');
   }
 
-  Future<void> exportarTareasAExcel(List<TaskModel> tareas) async {
+  Future<void> exportarTareasAExcel() async {
     final excel = Excel.createExcel();
     final sheet = excel['Tareas'];
 
@@ -93,13 +94,13 @@ class TaksProvider with ChangeNotifier {
     ]);
 
     // Datos de tareas
-    for (var tarea in tareas) {
+    for (var tarea in _tasks) {
       sheet.appendRow([
         tarea.title,
         tarea.descrip,
         tarea.date,
-        tarea.startTime ?? '',
-        tarea.endTime ?? '',
+        tarea.startTime,
+        tarea.endTime,
         tarea.priority,
       ]);
     }
@@ -114,6 +115,12 @@ class TaksProvider with ChangeNotifier {
       ..createSync(recursive: true)
       ..writeAsBytesSync(bytes);
 
-    print('Archivo guardado en: $filePath');
+    log('Archivo guardado en: $filePath');
+
+    // Compartir archivo
+    await Share.shareXFiles(
+      [XFile(filePath)],
+      text: 'Aquí está el archivo Excel de tareas 📄',
+    );
   }
 }

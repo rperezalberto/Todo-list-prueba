@@ -1,12 +1,17 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+import 'package:todo_list/components/alert_dialog_component.dart';
 import 'package:todo_list/components/button_piority_component.dart';
 import 'package:todo_list/components/custom_button_component.dart';
 import 'package:todo_list/components/text_title_component.dart';
 import 'package:todo_list/enum/priority_enum.dart';
 import 'package:todo_list/models/task_model.dart';
 import 'package:todo_list/providers/add_provider.dart';
+import 'package:todo_list/providers/taks_provider.dart';
 import 'package:todo_list/providers/update_provider.dart';
 import 'package:todo_list/utils/utils.dart';
 
@@ -19,6 +24,7 @@ class UpdateView extends StatelessWidget {
     // final addProvider = Provider.of<AddProvider>(context);
 
     final updateProvider = Provider.of<UpdateProvider>(context);
+    final taksProvider = Provider.of<TaksProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -62,12 +68,30 @@ class UpdateView extends StatelessWidget {
                   ],
                 ),
               ),
-              CustomButtonComponent(
-                title: "Actulizar",
-                onTap: () {
-                  updateProvider.update(taks.id!);
-                  Navigator.pop(context);
-                },
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButtonComponent(
+                      title: "Actualizar",
+                      onTap: () {
+                        updateProvider.update(taks.id!);
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: CustomButtonComponent(
+                      title: "Eliminar",
+                      onTap: () {
+                        showDeleteDialog(context, () {
+                          taksProvider.deleteTask(taks.id!);
+                          Navigator.pop(context);
+                        });
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

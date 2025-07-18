@@ -118,9 +118,12 @@ class HomeView extends StatelessWidget {
                                 );
                               },
                               onLongPress: () {
-                                showDeleteDialog(context, () {
-                                  provider.deleteTask(task.id!);
-                                });
+                                showDeleteDialog(
+                                  context,
+                                  () {
+                                    provider.deleteTask(task.id!);
+                                  },
+                                );
                               },
                               child: Padding(
                                 padding: const EdgeInsets.only(bottom: 12.0),
@@ -233,6 +236,7 @@ class DrawerMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeColor = Theme.of(context).colorScheme;
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final taksProvider = Provider.of<TaksProvider>(context);
     return Drawer(
       child: SafeArea(
         child: Padding(
@@ -272,19 +276,28 @@ class DrawerMenu extends StatelessWidget {
                   ],
                 ),
               ),
-              Text(
-                "Cambiar tema",
-                style: TextStyle(
-                  fontSize: 18,
-                  color: themeColor.onSecondary,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 10),
+              SizedBox(height: 5),
               ItemMenu(
-                title: "Tema",
+                title: "Cambiar tema",
+                label: "Tema",
                 onTap: () {
                   themeProvider.changeTheme();
+                },
+              ),
+              SizedBox(height: 20),
+              ItemMenu(
+                title: "Exportar data",
+                label: "Exportar",
+                onTap: () {
+                  taksProvider.exportarTareasAExcel();
+                },
+              ),
+              SizedBox(height: 20),
+              ItemMenu(
+                title: "Compartir data",
+                label: "Compartir",
+                onTap: () {
+                  taksProvider.exportarTareasAExcel();
                 },
               ),
             ],
@@ -297,42 +310,61 @@ class DrawerMenu extends StatelessWidget {
 
 class ItemMenu extends StatelessWidget {
   final String title;
+  final String label;
   final void Function() onTap;
-  const ItemMenu({super.key, required this.title, required this.onTap});
+  const ItemMenu(
+      {super.key,
+      required this.title,
+      required this.onTap,
+      required this.label});
 
   @override
   Widget build(BuildContext context) {
     final themeColor = Theme.of(context).colorScheme;
-    return GestureDetector(
-      onTap: () => onTap(),
-      child: Container(
-        width: double.infinity,
-        height: 40,
-        margin: const EdgeInsets.only(bottom: 10),
-        decoration: BoxDecoration(
-          // color: isSelected ? theme.primary : theme.onPrimary,
-          borderRadius: BorderRadius.circular(5),
-          border: Border.all(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: TextStyle(
+            fontSize: 18,
             color: themeColor.onSecondary,
-            width: 0.5,
+            fontWeight: FontWeight.w600,
           ),
         ),
-        child: Row(
-          children: [
-            const SizedBox(width: 10),
-            Icon(Icons.color_lens),
-            const SizedBox(width: 10),
-            Text(
-              title,
-              style: TextStyle(
+        SizedBox(height: 5),
+        GestureDetector(
+          onTap: () => onTap(),
+          child: Container(
+            width: double.infinity,
+            height: 40,
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+              // color: isSelected ? theme.primary : theme.onPrimary,
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(
                 color: themeColor.onSecondary,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+                width: 0.5,
               ),
             ),
-          ],
+            child: Row(
+              children: [
+                const SizedBox(width: 10),
+                Icon(Icons.color_lens),
+                const SizedBox(width: 10),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: themeColor.onSecondary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+      ],
     );
   }
 }

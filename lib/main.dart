@@ -9,6 +9,7 @@ import 'package:todo_list/views/home_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await initializeDateFormatting('es_ES', null);
   // final path = join(await getDatabasesPath(), 'tasks.db');
   // await deleteDatabase(path); // <-- BORRAR SOLO PARA TESTING INICIAL
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         }
 
         return MaterialApp(
+          debugShowCheckedModeBanner: false,
           title: 'Material App',
           theme: themeProvider.currentTheme,
           home: const HomeView(),
