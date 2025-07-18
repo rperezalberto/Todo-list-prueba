@@ -1,4 +1,3 @@
-// lib/services/db_service.dart
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../models/task_model.dart';
@@ -35,6 +34,14 @@ class DBService {
         priority TEXT
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE settings (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        key TEXT UNIQUE,
+        value TEXT
+      )
+    ''');
   }
 
   Future<int> insertTask(TaskModel task) async {
@@ -45,31 +52,21 @@ class DBService {
   Future<List<TaskModel>> getTasks() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('tasks');
-
-    return List.generate(maps.length, (i) {
-      return TaskModel.fromMap(maps[i]);
-    });
+    return List.generate(maps.length, (i) => TaskModel.fromMap(maps[i]));
   }
 
   Future<void> deleteTaskServices(int id) async {
-    final db = await openDatabase('tasks.db');
-    await db.delete(
-      'tasks',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    final db = await database;
+    await db.delete('tasks', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> updateTaskSerices(TaskModel task) async {
     final db = await database;
-
     await db.update(
       'tasks',
-      task.toMap(), // convierte el modelo a Map<String, dynamic>
-      where: 'id = ?', // condición de actualización
-      whereArgs: [task.id], // id de la tarea a actualizar
+      task.toMap(),
+      where: 'id = ?',
+      whereArgs: [task.id],
     );
   }
-
-  // También puedes agregar: getTasks(), updateTask(), deleteTask()...
 }

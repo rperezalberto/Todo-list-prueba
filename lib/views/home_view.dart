@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:todo_list/components/alert_dialog_component.dart';
-import 'package:todo_list/components/text_title_component.dart';
 import 'package:todo_list/providers/taks_provider.dart';
 import 'package:todo_list/providers/theme_provider.dart';
 import 'package:todo_list/theme/app_color.dart';
@@ -20,7 +19,6 @@ class HomeView extends StatelessWidget {
     final taskProvider = Provider.of<TaksProvider>(context);
     final themeColor = Theme.of(context).colorScheme;
 
-    // Llamamos a loadTasks() solo si aún no se ha cargado
     if (!taskProvider.isLoaded) {
       taskProvider.loadTasks();
     }
@@ -44,116 +42,180 @@ class HomeView extends StatelessWidget {
       ),
       body: Consumer<TaksProvider>(
         builder: (context, provider, _) {
-          if (provider.tasks.isEmpty) {
-            return const Center(child: Text('No hay tareas aún.'));
-          }
+          final filteredTasks = provider.filteredTasks;
 
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: ListView.builder(
-              itemCount: provider.tasks.length,
-              itemBuilder: (context, index) {
-                final task = provider.tasks[index];
-                final color = taskProvider.getPriorityColor(task.priority);
-
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => UpdateView(taks: task)));
-                  },
-                  onLongPress: () {
-                    showDeleteDialog(context, () {
-                      provider.deleteTask(task.id!);
-                    });
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 20,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: color,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              bottomLeft: Radius.circular(10),
-                            ),
-                          ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 30),
+                  child: TextFormField(
+                    controller: provider.searchController,
+                    autocorrect: false,
+                    autofocus: false,
+                    onChanged: provider.updateSearchQuery,
+                    decoration: InputDecoration(
+                      hintText: 'Buscar por título o descripción',
+                      contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                      hintStyle: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: themeColor.onPrimary,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.search_sharp,
+                        size: 30,
+                        color: themeColor.primary,
+                      ),
+                      suffixIcon: provider.searchQuery.isNotEmpty
+                          ? IconButton(
+                              onPressed: provider.clearSearch,
+                              icon: const Icon(Icons.clear),
+                            )
+                          : null,
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: themeColor.secondary.withOpacity(0.2),
                         ),
-                        Expanded(
-                          child: Container(
-                            height: 80,
-                            decoration: BoxDecoration(
-                              color: themeColor.secondary.withOpacity(0.5),
-                              borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(10),
-                                bottomRight: Radius.circular(10),
-                              ),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          task.title,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 1,
-                                        ),
-                                        Text(
-                                          task.descrip,
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w400,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(width: 30),
-                                  Text(
-                                    currentMonth(task.date),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: themeColor.secondary.withOpacity(0.2),
+                          width: 1,
                         ),
-                      ],
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: themeColor.secondary.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
                     ),
                   ),
-                );
-              },
+                ),
+                Expanded(
+                  child: filteredTasks.isEmpty
+                      ? const Center(
+                          child: Text('No hay tareas que coincidan.'))
+                      : ListView.builder(
+                          itemCount: filteredTasks.length,
+                          itemBuilder: (context, index) {
+                            final task = filteredTasks[index];
+                            final color =
+                                taskProvider.getPriorityColor(task.priority);
+
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => UpdateView(taks: task),
+                                  ),
+                                );
+                              },
+                              onLongPress: () {
+                                showDeleteDialog(context, () {
+                                  provider.deleteTask(task.id!);
+                                });
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 20,
+                                      height: 80,
+                                      decoration: BoxDecoration(
+                                        color: color,
+                                        borderRadius: const BorderRadius.only(
+                                          topLeft: Radius.circular(10),
+                                          bottomLeft: Radius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        height: 80,
+                                        decoration: BoxDecoration(
+                                          color: themeColor.secondary
+                                              .withOpacity(0.5),
+                                          borderRadius: const BorderRadius.only(
+                                            topRight: Radius.circular(10),
+                                            bottomRight: Radius.circular(10),
+                                          ),
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      task.title,
+                                                      style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                    ),
+                                                    Text(
+                                                      task.descrip,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w400,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 30),
+                                              Text(
+                                                currentMonth(task.date),
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
             ),
           );
         },
       ),
-      drawer: DrawerMenu(),
+      drawer: const DrawerMenu(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
-              context, MaterialPageRoute(builder: (_) => AddListView()));
+              context, MaterialPageRoute(builder: (_) => const AddListView()));
         },
         child: Icon(
           Icons.add,
